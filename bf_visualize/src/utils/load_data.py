@@ -6,6 +6,7 @@ import os
 from dataclasses import dataclass
 from typing import Dict, List, Tuple
 
+import numpy as np
 import pandas as pd
 from obspy import Stream, UTCDateTime
 from obspy.geodetics.base import locations2degrees
@@ -17,6 +18,8 @@ from tqdm import tqdm
 class DataInfo:
     """Data class recording csv file info
     """
+    event_id: str
+    station: str
     origin_time: UTCDateTime
     ptime: UTCDateTime
     stime: UTCDateTime
@@ -35,20 +38,25 @@ def load_data_info(path: str) -> Dict[Tuple[str, str], DataInfo]:
     """
     df = pd.read_csv(path)
     res = {}
-    for idx in tqdm(range(len(df))):
+    for idx in range(len(df)):
         row = df.iloc[idx]
         # keys
         event_id = row["EVENT_ID"]
         station = row["STATION"]
         # we record the time as the absolute time
         origin_time = UTCDateTime(row["ORIGIN_TIME"])
-        ptime = origin_time+row["PTIME"]
-        stime = origin_time+row["STIME"]
-        pstime = origin_time+row["PSTIME"]
+        ptime = origin_time + \
+            row["PTIME"] if (not np.isnan(row["PTIME"])) else None
+        stime = origin_time + \
+            row["STIME"] if (not np.isnan(row["STIME"])) else None
+        pstime = origin_time + \
+            row["PSTIME"] if (not np.isnan(row["PSTIME"])) else None
         # add dist
         dist = locations2degrees(
             row["ELAT"], row["ELON"], row["SLAT"], row["SLON"])
         res[(event_id, station)] = DataInfo(
+            event_id=event_id,
+            station=station,
             origin_time=origin_time,
             ptime=ptime,
             stime=stime,
@@ -70,7 +78,7 @@ def load_waveforms(path: str, keys: List[Tuple[str, str]]) -> Dict[str, Stream]:
     """
     res = {}
     with ASDFDataSet(path, mode="r") as ds:
-        for event_id, station in keys:
+        for event_id, station in tqdm(keys, desc="loading waveforms"):
             asdf_key = f"{event_id}.{station}"
             res[(event_id, station)] = ds.waveforms[asdf_key].raw_recording
     return res

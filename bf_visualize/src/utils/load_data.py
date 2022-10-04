@@ -84,6 +84,20 @@ def load_waveforms(path: str, keys: List[Tuple[str, str]]) -> Dict[str, Stream]:
     return res
 
 
+def load_ps_info(path: str):
+    data = np.loadtxt(path, dtype=str)
+    res = {}
+    for row in data:
+        event_id, station = row[0].split(".")
+        res[(event_id, station)] = {
+            "s": float(row[1]),
+            "e": float(row[2]),
+            "snr": float(row[3]),
+            "index": int(row[4])
+        }
+    return res
+
+
 if __name__ == "__main__":
     dir_path = os.path.dirname(os.path.realpath(__file__))
     load_data_info(os.path.join(

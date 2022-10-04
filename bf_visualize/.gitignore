@@ -2,3 +2,6 @@
 *__pycache__*
 cache/*
 !cache/.gitkeep
+*pdf
+*.DS_Store
+data/

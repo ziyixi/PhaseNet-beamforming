@@ -124,3 +124,29 @@ def select_based_on_snr(waves: Dict[Tuple[str, str], Stream], noise_win: Tuple[f
         else:
             raise Exception(f"calculation of {key} leads to snr==0")
     return res
+
+
+def post_process_ps(waves: Dict[Tuple[str, str], Stream], ps_info, sampling_rate: int = 100) -> Dict[Tuple[str, str], Stream]:
+    res = {}
+    for key in tqdm(ps_info, desc="processing"):
+        stream = waves[key].copy()
+        stream.detrend("demean")
+        stream.detrend("linear")
+        stream.taper(max_percentage=0.05, type="hann")
+        stream.interpolate(sampling_rate=sampling_rate)
+        stream.filter("bandpass", freqmin=ps_info[key]["s"],
+                      freqmax=ps_info[key]["e"], corners=2, zerophase=True)
+        res[key] = stream
+    return res
+
+
+def select_based_on_snr_ps(waves: Dict[Tuple[str, str], Stream], ps_info, min_snr: float = 3) -> Dict[Tuple[str, str], Trace]:
+    res = {}
+    for key in ps_info:
+        stream = waves[key]
+        if ps_info[key]["snr"] < min_snr:
+            continue
+        tr = stream[ps_info[key]["index"]]
+        tr.normalize()
+        res[key] = tr
+    return res

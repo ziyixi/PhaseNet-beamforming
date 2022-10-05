@@ -25,6 +25,11 @@ class DataInfo:
     stime: UTCDateTime
     pstime: UTCDateTime
     dist: float
+    evla: float
+    evlo: float
+    stla: float
+    stlo: float
+    evdp: float
 
 
 def load_data_info(path: str) -> Dict[Tuple[str, str], DataInfo]:
@@ -54,6 +59,8 @@ def load_data_info(path: str) -> Dict[Tuple[str, str], DataInfo]:
         # add dist
         dist = locations2degrees(
             row["ELAT"], row["ELON"], row["SLAT"], row["SLON"])
+        evla, evlo, stla, stlo, evdp = row["ELAT"], row["ELON"], row["SLAT"], row["SLON"], row["EDEP"]
+
         res[(event_id, station)] = DataInfo(
             event_id=event_id,
             station=station,
@@ -61,7 +68,12 @@ def load_data_info(path: str) -> Dict[Tuple[str, str], DataInfo]:
             ptime=ptime,
             stime=stime,
             pstime=pstime,
-            dist=dist
+            dist=dist,
+            evla=evla,
+            evlo=evlo,
+            stla=stla,
+            stlo=stlo,
+            evdp=evdp
         )
     return res
 

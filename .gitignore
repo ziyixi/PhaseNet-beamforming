@@ -1,1 +1,4 @@
 jianhua_beamforming/
+temp.py
+*.ipynb_checkpoints*
+bf_notebook/data

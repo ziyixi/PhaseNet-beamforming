@@ -6,8 +6,13 @@ authors = ["ziyi xi <ziyixi@mail.ustc.edu.cn>"]
 readme = "README.md"
 
 [tool.poetry.dependencies]
-python = "^3.9"
+python = ">=3.9,<3.12"
 obspy = "^1.3.0"
+pyasdf = "^0.7.5"
+pandas = "^1.5.0"
+ipykernel = "^6.16.0"
+matplotlib = "^3.6.1"
+numpy = "^1.23.3"
 
 
 [build-system]
